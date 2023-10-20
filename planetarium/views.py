@@ -1,8 +1,10 @@
 from datetime import datetime
 
 from django.db.models import F, Count
-from rest_framework import viewsets, mixins
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import viewsets, mixins, status
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
 from planetarium.models import (
@@ -36,7 +38,12 @@ class ShowThemeViewSet(
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
-class AstronomyShowViewSet(viewsets.ModelViewSet):
+class AstronomyShowViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
     serializer_class = AstronomyShowSerializer
     queryset = AstronomyShow.objects.all()
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
@@ -64,6 +71,23 @@ class AstronomyShowViewSet(viewsets.ModelViewSet):
 
         return AstronomyShowSerializer
 
+    @action(
+        methods=["POST"],
+        detail=True,
+        url_path="upload-image",
+        permission_classes=[IsAdminUser],
+    )
+    def upload_image(self, request, pk=None):
+        """Endpoint for uploading image to specific movie"""
+        astronomy_show = self.get_object()
+        serializer = self.get_serializer(astronomy_show, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class ShowSessionViewSet(viewsets.ModelViewSet):
     serializer_class = ShowSessionSerializer
@@ -72,13 +96,13 @@ class ShowSessionViewSet(viewsets.ModelViewSet):
         .select_related("astronomy_show", "planetarium_dome")
         .annotate(
             tickets_available=(
-                F("planetarium_dome__rows") * F("planetarium_dome__seats_in_row")
+                F("planetarium_dome__rows")
+                * F("planetarium_dome__seats_in_row")
                 - Count("tickets")
             )
         )
     )
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
-
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -96,18 +120,26 @@ class ShowSessionViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(show_time__date=date)
 
         if astronomy_show_id_str:
-            queryset = queryset.filter(astronomy_show_id=int(astronomy_show_id_str))
+            queryset = queryset.filter(
+                astronomy_show_id=int(astronomy_show_id_str)
+            )
 
         return queryset
 
 
-class PlanetariumDomeViewSet(viewsets.ModelViewSet):
+class PlanetariumDomeViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    GenericViewSet,
+):
     serializer_class = PlanetariumDomeSerializer
     queryset = PlanetariumDome.objects.all()
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
-class ReservationViewSet(viewsets.ModelViewSet):
+class ReservationViewSet(
+    mixins.ListModelMixin, mixins.CreateModelMixin, GenericViewSet
+):
     serializer_class = ReservationSerializer
     queryset = Reservation.objects.all()
     permission_classes = (IsAuthenticated,)
@@ -119,4 +151,3 @@ class ReservationViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
-
