@@ -2,7 +2,7 @@ from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from planetariumapp.models import (
+from planetarium.models import (
     AstronomyShow,
     ShowSession,
     PlanetariumDome,
@@ -31,7 +31,7 @@ class AstronomyShowListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AstronomyShow
-        fields = ("id", "title", "description", "show_themes")
+        fields = ("id", "title", "description", "show_themes", "image")
 
 
 class AstronomyShowDetailSerializer(serializers.ModelSerializer):
@@ -39,7 +39,7 @@ class AstronomyShowDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AstronomyShow
-        fields = ("id", "title", "description", "show_themes")
+        fields = ("id", "title", "description", "show_themes", "image")
 
 
 class PlanetariumDomeSerializer(serializers.ModelSerializer):
