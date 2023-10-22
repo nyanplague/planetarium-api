@@ -1,6 +1,8 @@
 from datetime import datetime
 
 from django.db.models import F, Count
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import viewsets, mixins, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
@@ -54,11 +56,12 @@ class AstronomyShowViewSet(
         return [int(str_id) for str_id in qs.split(",")]
 
     def get_queryset(self):
-        show_themes = self.request.query_params.get("show_themes")
+        show_themes = self.request.query_params.get("themes")
         queryset = self.queryset
 
         if show_themes:
             show_themes_id = self._params_to_ints(show_themes)
+
             queryset = queryset.filter(show_themes__id__in=show_themes_id)
 
         return queryset.distinct()
@@ -88,8 +91,25 @@ class AstronomyShowViewSet(
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "themes",
+                type={"type": "list", "items": {"type": "number"}},
+                description="Filter by show theme id (ex. ?show_themes=2,5)",
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
-class ShowSessionViewSet(viewsets.ModelViewSet):
+
+class ShowSessionViewSet(
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.RetrieveModelMixin,
+    viewsets.GenericViewSet,
+):
     serializer_class = ShowSessionSerializer
     queryset = (
         ShowSession.objects.all()
@@ -125,6 +145,26 @@ class ShowSessionViewSet(viewsets.ModelViewSet):
             )
 
         return queryset
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "astronomy_show",
+                type=OpenApiTypes.INT,
+                description="Filter by astronomy show id (ex. ?astronomy_show=2)",
+            ),
+            OpenApiParameter(
+                "date",
+                type=OpenApiTypes.DATE,
+                description=(
+                    "Filter by datetime of ShowSession "
+                    "(ex. ?date=2022-10-23)"
+                ),
+            ),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 
 
 class PlanetariumDomeViewSet(
