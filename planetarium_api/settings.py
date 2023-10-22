@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "drf_spectacular",
     "django.contrib.staticfiles",
     "rest_framework",
     "planetarium",
@@ -57,7 +58,7 @@ ROOT_URLCONF = "planetarium_api.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / 'templates']
+        "DIRS": []
         ,
         "APP_DIRS": True,
         "OPTIONS": {
@@ -143,8 +144,8 @@ REST_FRAMEWORK = {
 }
 
 SPECTACULAR_SETTINGS = {
-    "TITLE": "Cinema Service API",
-    "DESCRIPTION": "Order cinema tickets",
+    "TITLE": "Planetarium Service API",
+    "DESCRIPTION": "Order Planetarium Shows tickets",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "SWAGGER_UI_SETTINGS": {
