@@ -58,12 +58,15 @@ class AstronomyShowViewSet(
 
     def get_queryset(self):
         show_themes = self.request.query_params.get("themes")
+        title = self.request.query_params.get("title")
         queryset = self.queryset
 
         if show_themes:
             show_themes_id = self._params_to_ints(show_themes)
-
             queryset = queryset.filter(show_themes__id__in=show_themes_id)
+
+        if title:
+            queryset = queryset.filter(title__icontains=title)
 
         return queryset.distinct()
 
@@ -82,7 +85,6 @@ class AstronomyShowViewSet(
         permission_classes=[IsAdminUser],
     )
     def upload_image(self, request, pk=None):
-        """Endpoint for uploading image to specific movie"""
         astronomy_show = self.get_object()
         serializer = self.get_serializer(astronomy_show, data=request.data)
 
@@ -98,6 +100,12 @@ class AstronomyShowViewSet(
                 "themes",
                 type={"type": "list", "items": {"type": "number"}},
                 description="Filter by show theme id (ex. ?show_themes=2,5)",
+            ),
+            OpenApiParameter(
+                name="title",
+                type=OpenApiTypes.STR,
+                description="Filter by title (ex. ?title=Astronomy)",
+                required=False,
             ),
         ]
     )
