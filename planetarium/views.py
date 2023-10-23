@@ -27,7 +27,7 @@ from planetarium.serializers import (
     AstronomyShowListSerializer,
     AstronomyShowDetailSerializer,
     ShowSessionListSerializer,
-    ReservationListSerializer,
+    ReservationListSerializer, ShowSessionDetailSerializer,
 )
 
 
@@ -135,6 +135,8 @@ class ShowSessionViewSet(
     def get_serializer_class(self):
         if self.action == "list":
             return ShowSessionListSerializer
+        if self.action == "retrieve":
+            return ShowSessionDetailSerializer
         return ShowSessionSerializer
 
     def get_queryset(self):
