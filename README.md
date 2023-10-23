@@ -23,6 +23,12 @@ API service for planetarium management written on DRF.
 
 * Admin users have the authority to manage information within the system. It includes the ability to create and update records related to show sessions, planetarium domes, and show themes.
 
+**Filtering**
+* Users can filter astronomy shows by title and show sessions by date and astronomy show id
+
+**Swagger documentation**
+
+
 # Db structure
 ![Db structure](demo/planetarium_db.png)
 
@@ -70,6 +76,9 @@ docker-compose up
 # Getting access through JWT
 * create user via api/user/register
 * get access token via api/user/token
+
+# Swagger documentation
+* api/doc/swagger
 
 # Demo
 ![Api Demo](demo/demo.png)
