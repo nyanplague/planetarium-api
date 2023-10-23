@@ -103,14 +103,16 @@ class TicketSeatsSerializer(TicketSerializer):
 
 class ShowSessionDetailSerializer(ShowSessionSerializer):
     movie = AstronomyShowListSerializer(many=False, read_only=True)
-    cinema_hall = PlanetariumDomeSerializer(many=False, read_only=True)
+    planetarium_dome = PlanetariumDomeSerializer(many=False, read_only=True)
     taken_places = TicketSeatsSerializer(
         source="tickets", many=True, read_only=True
     )
 
     class Meta:
         model = ShowSession
-        fields = ("id", "show_time", "movie", "cinema_hall", "taken_places")
+        fields = ("id", "show_time", "movie", "planetarium_dome", "taken_places")
+
+
 class TicketListSerializer(TicketSerializer):
     show_session = ShowSessionListSerializer(many=False, read_only=True)
 
