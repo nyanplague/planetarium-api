@@ -7,7 +7,10 @@ from rest_framework.test import APIClient
 from django.urls import reverse
 
 from planetarium.models import AstronomyShow, PlanetariumDome, ShowSession, ShowTheme
-from planetarium.serializers import AstronomyShowListSerializer, AstronomyShowDetailSerializer
+from planetarium.serializers import (
+    AstronomyShowListSerializer,
+    AstronomyShowDetailSerializer,
+)
 
 ASTRONOMY_SHOW_URL = reverse("planetarium:astronomyshow-list")
 SHOW_SESSION_URL = reverse("planetarium:showsession-list")
@@ -33,7 +36,7 @@ def sample_show_session(**params):
     defaults = {
         "show_time": "2023-10-22 14:00:00",
         "astronomy_show": None,
-        "planetarium_dome": planetarium_dome
+        "planetarium_dome": planetarium_dome,
     }
 
     defaults.update(params)
